@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Random Olinfo Problem</title>
+</head>
+<body>
+  <h1>Random Olinfo Problem</h1>
+  <input type="text" id="username" placeholder="Enter username" />
+  <button onclick="fetchProblem()">Get Problem</button>
+  <div id="result"></div>
+
+  <script>
+    async function fetchProblem() {
+      const username = document.getElementById("username").value.trim();
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "Loading...";
+
+      try {
+        const userRes = await fetch(`/api/user?username=${username}`);
+        const userData = await userRes.json();
+        const scores = {};
+        for (const entry of userData.scores || []) {
+          scores[entry.name] = entry.score;
+        }
+
+        const taskRes = await fetch("/api/tasks");
+        const taskData = await taskRes.json();
+        const allTasks = taskData.tasks;
+
+        const unsolved = allTasks.filter(task => (scores[task.name] || 0) < 100);
+
+        if (unsolved.length === 0) {
+          resultDiv.innerHTML = "🎉 You’ve solved all problems!";
+          return;
+        }
+
+        const task = unsolved[Math.floor(Math.random() * unsolved.length)];
+        resultDiv.innerHTML = `
+          <h2>${task.title}</h2>
+          <a href="https://training.olinfo.it/#/task/${task.name}/statement" target="_blank">Open Problem</a>
+        `;
+      } catch (err) {
+        console.error(err);
+        resultDiv.innerHTML = "❌ Failed to load data.";
+      }
+    }
+  </script>
+</body>
+</html>
