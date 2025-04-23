@@ -1,24 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Random Olinfo Problem</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Random CMS Unsolved Problem Generator</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f8f9fa;
+      color: #212529;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-bottom: 1rem;
+      color: #343a40;
+    }
+
+    input {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      margin-right: 0.5rem;
+      width: 250px;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #result {
+      margin-top: 2rem;
+      padding: 1rem;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      max-width: 500px;
+    }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 1rem;
+      }
+
+      input {
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Random Olinfo Problem</h1>
-  <input type="text" id="username" placeholder="Enter username" />
-  <button onclick="fetchProblem()">Get Problem</button>
+  <h1>🎯 Random Olinfo Problem</h1>
+  <div>
+    <input type="text" id="username" placeholder="Enter your olinfo username" />
+    <button onclick="fetchProblem()">Get Problem</button>
+  </div>
   <div id="result"></div>
 
   <script>
     async function fetchProblem() {
       const username = document.getElementById("username").value.trim();
       const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = "Loading...";
+
+      if (!username) {
+        resultDiv.innerHTML = "⚠️ Please enter a username!";
+        return;
+      }
+
+      resultDiv.innerHTML = "🔄 Fetching problem...";
 
       try {
         const userRes = await fetch(`/api/user?username=${username}`);
         const userData = await userRes.json();
+
         const scores = {};
         for (const entry of userData.scores || []) {
           scores[entry.name] = entry.score;
@@ -31,18 +115,20 @@
         const unsolved = allTasks.filter(task => (scores[task.name] || 0) < 100);
 
         if (unsolved.length === 0) {
-          resultDiv.innerHTML = "🎉 You’ve solved all problems!";
+          resultDiv.innerHTML = "🎉 You’ve solved all available problems!";
           return;
         }
 
         const task = unsolved[Math.floor(Math.random() * unsolved.length)];
         resultDiv.innerHTML = `
           <h2>${task.title}</h2>
-          <a href="https://training.olinfo.it/#/task/${task.name}/statement" target="_blank">Open Problem</a>
+          <p><a href="https://training.olinfo.it/#/task/${task.name}/statement" target="_blank">
+            Open Problem ↗
+          </a></p>
         `;
       } catch (err) {
         console.error(err);
-        resultDiv.innerHTML = "❌ Failed to load data.";
+        resultDiv.innerHTML = "❌ Could not load data. Please check the username or try again.";
       }
     }
   </script>
