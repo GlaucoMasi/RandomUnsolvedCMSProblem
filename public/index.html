@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Random CMS Unsolved Problem Generator</title>
+  <title>Random Olinfo (Unsolved) Problem Generator</title>
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
@@ -52,6 +52,7 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
       text-align: center;
       max-width: 500px;
+      display: none;
     }
 
     a {
@@ -80,7 +81,7 @@
   </style>
 </head>
 <body>
-  <h1>🎯 Random Olinfo Problem</h1>
+  <h1>Random Olinfo Problem</h1>
   <div>
     <input type="text" id="username" placeholder="Enter your olinfo username" />
     <button onclick="fetchProblem()">Get Problem</button>
@@ -93,10 +94,12 @@
       const resultDiv = document.getElementById("result");
 
       if (!username) {
-        resultDiv.innerHTML = "⚠️ Please enter a username!";
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = "⚠️ Please enter a username.";
         return;
       }
 
+      resultDiv.style.display = "block";
       resultDiv.innerHTML = "🔄 Fetching problem...";
 
       try {
@@ -121,16 +124,26 @@
 
         const task = unsolved[Math.floor(Math.random() * unsolved.length)];
         resultDiv.innerHTML = `
-          <h2>${task.title}</h2>
+          <h2>${task.title} <span style="font-weight: normal;">(${task.name})</span></h2>
           <p><a href="https://training.olinfo.it/#/task/${task.name}/statement" target="_blank">
             Open Problem ↗
           </a></p>
         `;
       } catch (err) {
         console.error(err);
+        resultDiv.style.display = "block";
         resultDiv.innerHTML = "❌ Could not load data. Please check the username or try again.";
       }
     }
+
+    // Hide result box again when user clears input
+    document.getElementById("username").addEventListener("input", () => {
+      const resultDiv = document.getElementById("result");
+      if (!document.getElementById("username").value.trim()) {
+        resultDiv.style.display = "none";
+        resultDiv.innerHTML = "";
+      }
+    });
   </script>
 </body>
 </html>
